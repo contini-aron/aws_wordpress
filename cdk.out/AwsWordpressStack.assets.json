@@ -1,0 +1,19 @@
+{
+  "version": "29.0.0",
+  "files": {
+    "5cce0faa188a50c69abc5398317b677910d2014ee7145a6ee7e7447a8f2ff48b": {
+      "source": {
+        "path": "AwsWordpressStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-current_region": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}",
+          "objectKey": "5cce0faa188a50c69abc5398317b677910d2014ee7145a6ee7e7447a8f2ff48b.json",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
