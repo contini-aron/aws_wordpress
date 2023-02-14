@@ -1,10 +1,13 @@
+"""
+main stack module
+"""
+
 import aws_cdk as cdk
 from aws_cdk import (
     # Duration,
     Stack,
     # aws_sqs as sqs,
     aws_ec2 as ec2,
-    aws_ecs as ecs,
     aws_ecs as ecs,
     aws_ecs_patterns as ecs_ptn,
     aws_efs as efs,
@@ -17,6 +20,9 @@ from constructs import Construct
 
 
 def gen_salt(context, id) -> smg.Secret:
+    """
+    generate a secret far a salt ID
+    """
     return smg.Secret(
         context,
         id,
@@ -74,7 +80,6 @@ class AwsWordpressStack(Stack):
             "DataBase",
             engine=rds.DatabaseClusterEngine.AURORA_MYSQL,
             default_database_name="wordpress",
-            #############################################################
             credentials=rds.Credentials.from_secret(secret_db_cred, username="admin"),
             vpc=vpc,
             vpc_subnets=ec2.SubnetSelection(
@@ -83,10 +88,12 @@ class AwsWordpressStack(Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY,
         )
 
+        # EFS security group
         fs_sec_group = ec2.SecurityGroup(
             self, "EfsSecurityGroup", vpc=vpc, description="Worpress access to EFS"
         )
 
+        # EFS instance
         file_system = efs.FileSystem(
             self,
             "Content",
@@ -96,6 +103,7 @@ class AwsWordpressStack(Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY,
         )
 
+        # ECS TASK
         task_exec_role = iam.Role(
             self,
             "TaskExecutionRole",
@@ -142,10 +150,12 @@ class AwsWordpressStack(Stack):
             k.replace("secret", "wordpress").upper(): ecs.Secret.from_secrets_manager(v)
             for k, v in salts.items()
         }
+        # secret for db is json, not simple string password
         secrets["WORDPRESS_DB_PASSWORD"] = ecs.Secret.from_secrets_manager(
             secret_db_cred, field="password"
         )
 
+        # WORDPRESS CONTAINER
         container = task.add_container(
             "WordPress",
             image=ecs.ContainerImage.from_registry("wordpress:latest"),
@@ -191,11 +201,14 @@ class AwsWordpressStack(Stack):
             unhealthy_threshold_count=2,
         )
 
+        # setup aurora default MySQL port
         db.connections.allow_from(
             ec2.Peer.ipv4(vpc.vpc_cidr_block),
             ec2.Port.tcp(3306),
             description="allow connections inside VPC",
         )
+
+        # EFS port
         fs_sec_group.add_ingress_rule(
             peer=ec2.Peer.ipv4(vpc.vpc_cidr_block), connection=ec2.Port.tcp(2049)
         )
