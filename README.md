@@ -1,6 +1,9 @@
 # aws_wordpress
 PoC of a high availability wordpress deployment on AWS
 
+## Architectural Overview
+![Alt text](resources/architectural_overview.png?raw=true "Title")
+
 ## Development setup
 make a dev virtualenv:
 ```
