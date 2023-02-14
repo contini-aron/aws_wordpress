@@ -24,6 +24,17 @@ change directory into the folder
 ```
 cd aws_wordpress
 ```
+
+make a virtualenv:
+```
+virtualenv env
+```
+activate env  and install requirements
+``` bash
+source ./env/bin/activate
+pip install -r requirements.txt
+```
+
 run a cdk synthesize
 ```
 cdk synth
